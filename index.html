@@ -3,64 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Remake</title>
     <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
 </head>
 <body>
     
-    <div class="game">
+    <div class="game" id="app">
 
-        <aside class="sidebar sidebar--stats">
+        <aside class="sidebar">
             <header class="sidebar__header">YOUR CARDS</header>
             <div class="sidebar__inner">
-
-                cards...
-
+                <div class="cards-grid" id="playerCards"></div>
             </div>
+            <footer class="sidebar__footer">
+                <div class="cards-counter" id="playerCardsCounter">
+                </div>
+            </footer>
         </aside>
 
         <main class="main">
+            <header class="main__header">TWENTY ONE</header>
+            <center><div class="round-counter hide">ROUND: 1</div></center>
 
             <div class="scene">
-                <!-- <h1 class="scene__title">TWENTY ONE</h1> -->
-                <div class="opponent"></div>
-                <div class="opponent-cards"></div>
+                <div class="scene__opponent"></div>
+
+                <!-- Endings -->
+                <div class="scene__opponent scene__opponent--stare hide  scene__opponent--end" id="stare"></div>
+                <video class="scene__opponent hide   scene__opponent--end" id="goomba"  loop>
+                    <source src="assets/goomba.mp4" type="video/mp4">
+                </video>
                 
-                <div class="table"></div>
-                
-                <div class="yours">
-                    <div class="yours__cards"></div>
-                </div>
+                <div class="scene__table"></div>
+
+                <div class="scene__ui">
+                    <img class="scene__cards-decoration" src="./assets/cards.png" alt="cards">
+                    <div class="scene__cards">
+                        <div class="scene__exposed"></div>
+                        <div class="scene__helper"></div>
+                    </div> <!-- /.scene cards -->
+                </div> <!-- /.scene ui -->
             </div>
 
             <div class="action-box">
                 <main class="action-box__main">
-                    <!-- Dialogues here -->
-                    Opponent is thinking
+                    <!-- Kirillo is thinking... -->
                 </main>
-                <footer class="action-box__footer">
-                    <!-- Buttons here -->
+                <footer class="action-box__footer" id="buttons">
 
-                    <button type="button" class="btn">TAKE CARD</button>
-                    
-                    <button type="button" class="btn">PASS</button>
-
+                    <button type="button" class="btn " id="take">TAKE CARD</button>
+                    <button type="button" class="btn " id="pass">PASS</button>
                 </footer>
+                <center><button type="button" class="btn hide" id="restart">RESTART</button></center>
             </div>
-
         </main>
 
-        <aside class="sidebar sidebar--specials">
-            <header class="sidebar__header">SPECIALS</header>
 
+        <aside class="sidebar">
+            <!-- <header class="sidebar__header">SPECIALS</header> -->
             <div class="sidebar__inner">
-
-                specials...
-
+                <div class="cards-grid">
+                    <!-- <div class="play-card">11</div> -->
+                </div>
             </div>
+            <footer class="sidebar__footer"></footer>
         </aside>
 
     </div>
 
+    <script src="remake.js"></script>
 </body>
 </html>
