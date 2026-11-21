@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Remake</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/src/style.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,13 +35,13 @@
                 <!-- Endings -->
                 <div class="scene__opponent scene__opponent--stare hide  scene__opponent--end" id="stare"></div>
                 <video class="scene__opponent hide   scene__opponent--end" id="goomba"  loop>
-                    <source src="assets/goomba.mp4" type="video/mp4">
+                    <source src="/src/assets/goomba.mp4" type="video/mp4">
                 </video>
                 
                 <div class="scene__table"></div>
 
                 <div class="scene__ui">
-                    <img class="scene__cards-decoration" src="./assets/cards.png" alt="cards">
+                    <img class="scene__cards-decoration" src="/src/assets/cards.png" alt="cards">
                     <div class="scene__cards">
                         <div class="scene__exposed"></div>
                         <div class="scene__helper"></div>
@@ -75,6 +75,6 @@
 
     </div>
 
-    <script src="remake.js"></script>
+    <script type="module" src="/src/index.js"></script>
 </body>
 </html>
