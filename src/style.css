@@ -145,6 +145,30 @@ body {
     background: url('./assets/kirillol.png') center no-repeat;
     /* background: url('./assets/me.png') center no-repeat; */
     background-size: contain;
+
+    transition: transform 0.3s ease;
+}
+
+.scene__opponent.moving {
+    animation: botMove 0.3s infinite;
+}
+
+@keyframes botMove {
+    0% {
+        transform: translate(-50%, -50%);
+    }
+
+    25% {
+        transform: translate(-50%, calc(-50% - 1.5px));
+    }
+
+    75% {
+        transform: translate(-50%, calc(-50% + 1.5px));
+    }
+
+    100% {
+        transform: translate(-50%, -50%);
+    }
 }
 
 .scene__opponent--stare {

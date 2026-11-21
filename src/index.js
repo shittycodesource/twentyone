@@ -1,50 +1,80 @@
-import CardStorage from "./cardsStorage.js";
-import Bot from "./bot.js";
-import HtmlController from "./htmlController.js";
-import Storage from "./storage.js";
+import CardStorage from './cardsStorage.js';
+import Bot from './bot.js';
+import HtmlController from './htmlController.js';
+import Storage from './storage.js';
+import Sounds from './sounds.js';
+import { decideWinner } from './gameRules.js';
+import { canTakeCard } from './canTakeCard.js';
 
 class Game {
-
     constructor() {
         this.storage = new Storage();
         this.save = this.storage.loadGame();
 
-
         this.flags = {
             areActionsLocked: false,
             isPlayersTurn: false,
-        }
+        };
 
         this.passCounter = 0;
         this.round = 0;
         this.currentLimit = 21;
 
-
-        if (this.save == false) 
-        {
+        if (this.save == false) {
             this.htmlController = new HtmlController();
-            this.cards = new CardStorage({ usedCards: [], unusedCards:[1,2,3,4,5,6,7,8,9,10,11] });
+            this.cards = new CardStorage({
+                usedCards: [],
+                unusedCards: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            });
             this.bot = new Bot({ health: 1000, cards: [], specials: [] });
             this.player = { health: 1000, cards: [], specials: [] };
-        }
-        else
-        {
+        } else {
             this.flags = {
                 areActionsLocked: this.save.areActionsLocked,
-                isPlayersTurn: this.save.isPlayersTurn
-            }
+                isPlayersTurn: this.save.isPlayersTurn,
+            };
 
             this.htmlController = new HtmlController();
-            
+
             this.cards = new CardStorage({
                 usedCards: this.save.usedCards,
                 unusedCards: this.save.unusedCard,
             });
-            
+
             this.bot = new Bot(this.save.botState);
             this.player = this.save.player;
         }
 
+        this.soundsController = new Sounds({ context: this });
+        this.setupRandom();
+    }
+
+    setupRandom() {
+        document.body.querySelectorAll('button').forEach((el) => {
+            el.addEventListener('click', () => {
+                const num = Math.floor(Math.random() * 100) + 1;
+
+                if (num % 6 == 0) {
+                    this.soundsController.playRandomSound();
+                    this.startBotAnimation();
+
+                    return;
+                }
+
+                if (num % 2 == 0) {
+                    this.soundsController.playThinkingSound();
+                    this.startBotAnimation();
+                }
+            });
+        });
+    }
+
+    startBotAnimation() {
+        this.htmlController.startBotAnimation();
+    }
+    // i'm retarded
+    stopBotAnimation() {
+        this.htmlController.stopBotAnimation();
     }
 
     giveRandomCard(currentPlayer) {
@@ -52,7 +82,7 @@ class Game {
 
         if (card) {
             currentPlayer.cards.push(card);
-            console.log("---> ", card);
+            console.log('---> ', card);
         }
     }
 
@@ -76,7 +106,10 @@ class Game {
         console.group('Passing controls');
 
         // this.flags.isPlayersTurn = !this.flags.isPlayersTurn;
-        this.htmlController.toggleButtons(this.flags.isPlayersTurn, this.flags.areActionsLocked);
+        this.htmlController.toggleButtons(
+            this.flags.isPlayersTurn,
+            this.flags.areActionsLocked,
+        );
 
         console.log('Is player in control ', this.flags.isPlayersTurn);
         console.groupEnd();
@@ -86,45 +119,36 @@ class Game {
         this.setEventListeners();
 
         if (this.save.isDefault) {
-
             this.decideWhoIsFirst();
             this.nextRound();
 
             this.htmlController.dialogue('');
             this.htmlController.typeWriter('Ну привет', 0, () => {
-
                 if (this.flags.isPlayersTurn == false) {
                     this.makeBotsMove();
                 } else {
                     this.htmlController.toggleButtons();
                 }
-                
             });
-
         } else {
             this.htmlController.render(this);
             this.htmlController.toggleButtons();
 
             this.htmlController.typeWriter('1000 лет спустя...', 0, () => {
-                
                 if (this.passCounter == 2) {
                     this.finishRound();
-                } 
-                else if (this.flags.isPlayersTurn == false) {
+                } else if (this.flags.isPlayersTurn == false) {
                     this.makeBotsMove();
                     this.flags.isPlayersTurn = true;
-                } 
-                else {
+                } else {
                     this.htmlController.toggleButtons();
                 }
-
             });
         }
-
     }
 
     nextRound() {
-         // Logic for next round
+        // Logic for next round
         console.group('startRound');
         console.log('Current round', this.round);
         console.log('Pass counter: ', this.passCounter);
@@ -161,10 +185,10 @@ class Game {
         this.flags = {
             areActionsLocked: false,
             isPlayersTurn: false,
-        }
+        };
 
         this.cards.reset();
-        this.bot.reset()
+        this.bot.reset();
         this.htmlController.reset();
 
         this.player = { health: 1000, cards: [], specials: [], inventory: [] };
@@ -175,9 +199,8 @@ class Game {
         console.groupEnd();
     }
 
-
     finishRound() {
-         console.group('finishRound');
+        console.group('finishRound');
 
         this.htmlController.unhideOrSomething();
 
@@ -187,37 +210,27 @@ class Game {
         console.log('Player total:', playerTotal);
         console.log('Bot total:', botTotal);
 
+        const winner = decideWinner(playerTotal, botTotal);
+
         let message;
-        if (playerTotal > 21 && botTotal > 21)
-        {
+
+        if (winner == 'draw') {
             message = 'Ничья!';
             this.htmlController.renderStare();
-        } 
-        else if (playerTotal > 21) 
-        {
+        } else if (winner == 'bot') {
             message = 'Кирилл победил!';
             this.htmlController.renderStare();
-        } 
-        else if (botTotal > 21) 
-        {
-            message = `Кирилл перебрал. Ты победил! (У Кирилла ${this.bot.cards.reduce((acc, curr) => acc + curr, 0)})`;
+        } else {
+            if (playerTotal > 21) {
+                message =
+                    'Кирилл перебрал. Ты победил! (У Кирилла ' +
+                    this.bot.cards.reduce((acc, curr) => acc + curr, 0) +
+                    ')';
+            } else {
+                message = `Ты победил! (У Кирилла ${this.bot.cards.reduce((acc, curr) => acc + curr, 0)})`;
+            }
+
             this.htmlController.renderAngryGoomba();
-        } 
-        else if (playerTotal == botTotal) 
-        {
-            message = 'Ничья!';
-            this.htmlController.renderStare();
-        } 
-        else if (playerTotal > botTotal) 
-        {
-            message = `Ты победил! (У Кирилла ${this.bot.cards.reduce((acc, curr) => acc + curr, 0)})`;
-            this.htmlController.renderAngryGoomba();
-        } 
-        else 
-        {
-            message = 'Кирилл победил!';
-            
-            this.htmlController.renderStare();
         }
 
         this.htmlController.renderPlayerCounter(playerTotal);
@@ -225,30 +238,32 @@ class Game {
         this.htmlController.dialogue('');
         this.htmlController.typeWriter(message, 0, () => {
             this.storage.clearSave();
-            // this.htmlController.stopEndMedia();
             console.groupEnd();
         });
 
         console.groupEnd();
     }
 
-
     makeBotsMove() {
         console.group('Bot is making a move...');
 
-        const move = this.bot.decideMove(this.bot.cards, this.cards.unusedCards, this.currentLimit);
+        const move = this.bot.decideMove(
+            this.bot.cards,
+            this.cards.unusedCards,
+            this.currentLimit,
+        );
 
         let message;
         if (move) {
             this.passCounter = 0;
-            
+
             this.giveRandomCard(this.bot);
             console.log('Bot took a card');
-            
+
             message = 'Кирилл взял карту';
         } else {
             this.passCounter++;
-            
+
             console.log('Bot PASSES');
             console.log('Pass counter: ', this.passCounter);
 
@@ -258,7 +273,7 @@ class Game {
         this.htmlController.render(this);
         this.flags.areActionsLocked = true;
         this.htmlController.toggleButtons();
-        
+
         this.htmlController.dialogue('');
         this.htmlController.typeWriter(message, 0, () => {
             this.flags.areActionsLocked = false;
@@ -276,9 +291,12 @@ class Game {
         console.groupEnd();
     }
 
-
     /* EVENTS =========================**/
     takeEvent() {
+        if (!canTakeCard(this.player.cards, this.currentLimit)) {
+            return;
+        }
+
         this.htmlController.stopEndMedia();
         if (this.htmlController.isTypeWriterActive) return;
 
@@ -295,13 +313,12 @@ class Game {
         this.passCounter = 0;
         this.giveRandomCard(this.player);
 
-        console.log(this)
+        console.log(this);
         this.flags.isPlayersTurn = false;
         this.passControls();
 
         this.htmlController.render(this);
         this.storage.saveGame(this);
-
 
         this.makeBotsMove();
 
@@ -322,7 +339,6 @@ class Game {
 
         console.group('passEvent');
 
-        
         this.passCounter++;
 
         this.flags.isPlayersTurn = false;
@@ -354,13 +370,20 @@ class Game {
         console.groupEnd();
     }
 
-
     setEventListeners() {
-        this.htmlController.setEvent(this.htmlController.takeButton, this.takeEvent.bind(this));
-        this.htmlController.setEvent(this.htmlController.passButton, this.passEvent.bind(this));
-        this.htmlController.setEvent(this.htmlController.restartButton, this.restartEvent.bind(this));
+        this.htmlController.setEvent(
+            this.htmlController.takeButton,
+            this.takeEvent.bind(this),
+        );
+        this.htmlController.setEvent(
+            this.htmlController.passButton,
+            this.passEvent.bind(this),
+        );
+        this.htmlController.setEvent(
+            this.htmlController.restartButton,
+            this.restartEvent.bind(this),
+        );
     }
-
 }
 
 const game = new Game();

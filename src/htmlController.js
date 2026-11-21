@@ -1,29 +1,24 @@
 class HtmlController {
-
     constructor() {
-
         this.buttons = document.getElementById('buttons');
         this.takeButton = document.getElementById('take');
         this.passButton = document.getElementById('pass');
         this.restartButton = document.getElementById('restart');
 
-
         this.dialogueBox = document.querySelector('.action-box__main');
         this.roundCounter = document.querySelector('.round-counter');
-
 
         // PLAYER
         this.playerCardsGrid = document.querySelector('#playerCards');
         this.playerCardsCounter = document.querySelector('#playerCardsCounter');
 
-
         // SCENE / OPPONENT
         this.opponentCardsGrid = document.querySelector('.scene__exposed');
         this.opponentHelper = document.querySelector('.scene__helper');
+        this.opponent = document.querySelector('.scene__opponent');
 
         this.isTypeWriterActive = false;
     }
-
 
     reset() {
         this.dialogueBox.innerHTML = '';
@@ -46,6 +41,13 @@ class HtmlController {
         });
     }
 
+    startBotAnimation() {
+        this.opponent.classList.add('moving');
+    }
+
+    stopBotAnimation() {
+        this.opponent.classList.remove('moving');
+    }
 
     unhideOrSomething() {
         // i dont even know how to name this
@@ -108,11 +110,11 @@ class HtmlController {
     }
 
     dialogue(text) {
-        this.dialogueBox.innerHTML = '';
+        this.dialogueBox.innerHTML = text;
     }
 
     toggleButtons(isPlayersTurn, areActionsLocked) {
-        const shouldHide = (isPlayersTurn == false) || (areActionsLocked == true);
+        const shouldHide = isPlayersTurn == false || areActionsLocked == true;
 
         this.buttons.classList.toggle('hide', shouldHide);
     }
@@ -124,9 +126,9 @@ class HtmlController {
     renderAngryGoomba() {
         const el = document.querySelector('#goomba');
         el.classList.toggle('hide');
-        console.log("ELEMENT", el)
+        console.log('ELEMENT', el);
         if (!el.paused && !el.ended) {
-            el.stop();          // Pauses playback
+            el.stop(); // Pauses playback
         }
     }
 
@@ -141,9 +143,9 @@ class HtmlController {
             .forEach((el) => el.classList.add('hide'));
 
         const el = document.querySelector('#goomba');
-        console.log("ELEMENT", el)
+        console.log('ELEMENT', el);
         if (!el.paused && !el.ended) {
-            el.stop();          // Pauses playback
+            el.stop(); // Pauses playback
         }
     }
 
@@ -152,13 +154,11 @@ class HtmlController {
         this.playerCardsCounter.classList.toggle('red', total > 21);
     }
 
-
     render(context) {
         // this.renderRoundCounter();
         this.renderPlayerUI(context.player.cards);
         this.renderSceneUI(context.bot.cards);
     }
-
 
     /* HTML HELPERS =============== **/
     getPlayerCardTemplate(i, card) {
@@ -179,9 +179,8 @@ class HtmlController {
     }
 
     setEvent(element, handler) {
-        element.addEventListener("click", () => handler());
+        element.addEventListener('click', () => handler());
     }
 }
-
 
 export default HtmlController;

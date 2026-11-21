@@ -1,10 +1,8 @@
 class Bot {
-    
-    constructor(options)
-    {
-        this.cards    = options?.cards    ?? []; // Just usual cards
+    constructor(options) {
+        this.cards = options?.cards ?? []; // Just usual cards
         this.specials = options?.specials ?? []; // Special cards that have unique functions
-        this.health   = options?.health   ?? 1000; // For the future...
+        this.health = options?.health ?? 1000; // For the future...
     }
 
     reset() {
@@ -23,27 +21,28 @@ class Bot {
      * @returns 0 to pass, 1 to take card
      */
     decideMove(botsCards, freeDeck, currentLimit) {
-        console.group("Bot decides his move");
+        console.group('Bot decides his move');
 
-        
-        const sum = botsCards.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-        const median = freeDeck[Math.floor(freeDeck.length / 2)]
+        const sum = botsCards.reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0,
+        );
+        const median = freeDeck[Math.floor(freeDeck.length / 2)];
 
-        console.log("Sum of cards: ", sum);
-        console.log("Median: ", median);
+        console.log('Sum of cards: ', sum);
+        console.log('Median: ', median);
         console.log(sum + median < currentLimit);
 
         if (sum + median < currentLimit) {
-            console.log("Bot takes card");
-            console.groupEnd("");
+            console.log('Bot takes card');
+            console.groupEnd('');
             return 1;
         }
-        
-        console.log("Bot passes");
-        console.groupEnd("");
-        return 0;
-    }
 
+        console.log('Bot passes');
+        console.groupEnd('');
+        return 0;
+    } // P.S I should've just used chatgpt to genererate me algorithm :(
 
     doRandomActions() {
         // later
@@ -53,13 +52,12 @@ class Bot {
      * @returns bot's variables to store in localstorage
      */
     getState() {
-        return { 
+        return {
             health: this.health,
             cards: this.cards,
-            specials: this.specials
-        }
+            specials: this.specials,
+        };
     }
-
 }
 
 export default Bot;
